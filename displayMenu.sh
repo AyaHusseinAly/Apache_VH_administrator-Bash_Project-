@@ -3,35 +3,38 @@
 #source controller.sh
 
 function displayMenu {
-
+echo 'Welcome '$(whoami)' to Apache web server administrator'
 PS3='Please enter your choice: '
-options=("Install Apache" "Remove Apache" "Start Apache" "Stop Apache" "Adminstrate VirtualHosts" "Configure Authentication" "Quit")
+options=( "Show Apache status" "Install Apache" "Remove Apache" "Start Apache" "Stop Apache" "Adminstrate VirtualHosts" "Configure Authentication" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
-        "Install Apache")
-                install_apache
-            ;;
-         "Remove Apache")
-		remove_apache
-                #read -p "Enter item name: " Name
-                #read -p "Enter inv_id: "  id
-                #read -p "Enter inv_quantity: " q                                                                                                                 read ->                read -p "Enter inv_unit_price: "  up
+        "Show Apache status")
+		service apache2 status
+	;;
+	"Install Apache")
+                install_apache_fn
 
-                #echo "Remove Apache"
+		;;
+         "Remove Apache")
+		remove_apache_fn
+
+                echo "Remove Apache"
             ;;
 	"Start Apache")
-		start_apache
+		start_apache_fn
+
 		echo "Apache Started"
 		;;
 	"Stop Apache")
-		stop_apache
+		stop_apache_fn
+
 		echo "Apache Stop"
         	;;
 	"Adminstrate VirtualHosts")
                 #read -p "Enter invoice id: "  id
 
-            echo "Adminstrate VirtualHosts"
+            	Adminstrate_VirtualHosts_fn
             ;;
         "Configure Authentication")
             echo "Configure Authentication"
