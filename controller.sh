@@ -18,9 +18,10 @@ function install_apache_fn {
 	sudo apt-get install apache2
 
 }
+### Function to uninstall apache and remove related files
 function remove_apache_fn {
 	stop_apache
-	sudo apt-get remove apache2
+	sudo apt-get purge apache2
 }
 function create_vh_fn {
 	root_dir=/var/www/${1}/html
@@ -31,7 +32,6 @@ function create_vh_fn {
 	echo "<VirtualHost *:80>
 	ServerAdmin admin@emanhussein.com
 	ServerName ${1}
-	ServerAlias ${2}
 	DocumentRoot $root_dir
 	ErrorLog ${APACHE_LOG_DIR}/error.log
 	CustomLog ${APACHE_LOG_DIR}/access.log combined
@@ -43,36 +43,55 @@ function create_vh_fn {
 	</VirtualHost>" >/etc/apache2/sites-available/${1}.conf
 
 	sudo chmod 777 /etc/hosts
-	sudo echo "127.0.0.1 "${1} >> /etc/hosts
+	sudo echo "127.0.0.1	"${1} >> /etc/hosts
 	sudo a2ensite ${1}
 	sudo service apache2 restart
 
-	echo "your virtual host root directory is " $root_dir
+	echo "your virtual host root directory is >>>>>>> " $root_dir" <<<<<<<"
 }
 function enable_vh_fn {
         sudo a2ensite ${1}.conf
+	#if grep -Fxq "${1}" /etc/hosts
+	#then
+	#else
+   	 sudo echo "127.0.0.1 "${1} >> /etc/hosts
+	#fi
         sudo service apache2 restart
+
 }
 
 function disable_vh_fn {
         sudo a2dissite ${1}.conf
+	sudo sed -i '/'${1}'/d' /etc/hosts
         sudo service apache2 restart
 }
 
+function delete_vh_fn {
+	sudo sed -i '/'${1}'/d' /etc/hosts
+	sudo service apache2 restart
+	root_dir=/var/www/${1}/html
+        sudo rm /etc/apache2/sites-available/${1}.conf
+        sudo rm -r $root_dir
 
+	echo "virtual host "${1}" is deleted successfully"
+}
 function Adminstrate_VirtualHosts_fn
 {
 
 PS3='Please enter your choice: '
-options=("Add new VH" "Enable VH" "Disable VH" "Quit")
+options=("Add new VH" "delete existing VH" "Enable VH" "Disable VH" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
         "Add new VH")
 	    read -p 'Enter Server Name: ' srvr_nm
-            read -p 'Enter Server Alias: ' srvr_als
-            create_vh_fn $srvr_nm $srvr_als
+            create_vh_fn $srvr_nm
             ;;
+        "delete existing VH")
+            read -p 'Enter Server Name: ' srvr_nm
+            delete_vh_fn $srvr_nm
+            ;;
+
         "Enable VH")
 	    read -p 'Enter server Name to enable: ' srvr_nm
 	    enable_vh_fn $srvr_nm
@@ -88,15 +107,5 @@ do
     esac
 done
 }
-
-#       if [ $(/etc/init.d/apache2 status | grep -v grep | grep 'Apache2 is running' | wc -l) > 0 ]
-#       then
-#               echo "Apache is already running."
-#               exit 1
-#       else
-#               #echo "Process is not running."
-#               sudo service apache2 restart
-#               exit 0
-#       fi
 
 
