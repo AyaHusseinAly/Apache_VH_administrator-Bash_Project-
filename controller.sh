@@ -30,12 +30,12 @@ function create_vh_fn {
 	touch $root_dir/index.html
 	echo '<h1>Hello you are connected to' ${1}'!</h1>' >$root_dir/index.html
 	echo "<VirtualHost *:80>
-	ServerAdmin admin@emanhussein.com
+	ServerAdmin admin@ayahussein.com
 	ServerName ${1}
 	DocumentRoot $root_dir
 	ErrorLog ${APACHE_LOG_DIR}/error.log
 	CustomLog ${APACHE_LOG_DIR}/access.log combined
-	<Directory /var/www/emanhussein.com/html>
+	<Directory /var/www/${1}/html>
         	Options Indexes FollowSymLinks
        		AllowOverride All
         	Require all granted
@@ -45,6 +45,7 @@ function create_vh_fn {
 	sudo chmod 777 /etc/hosts
 	sudo echo "127.0.0.1	"${1} >> /etc/hosts
 	sudo a2ensite ${1}
+	sudo service apache2 reload
 	sudo service apache2 restart
 
 	echo "your virtual host root directory is >>>>>>> " $root_dir" <<<<<<<"
@@ -56,7 +57,8 @@ function enable_vh_fn {
 	#else
    	 sudo echo "127.0.0.1 "${1} >> /etc/hosts
 	#fi
-        sudo service apache2 restart
+        sudo service apache2 reload
+	sudo service apache2 restart
 
 }
 
@@ -108,4 +110,58 @@ do
 done
 }
 
+
+function authenticate_vh_fn
+{
+
+PS3='Please enter your choice: '
+options=("Add new user and password" "Restrict VH website" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Add new user and password")
+            read -p 'Enter user name: ' usr_nm
+         #  sudo apt-get update
+         #  sudo apt-get install apache2 apache2-utils
+     	    sudo htpasswd -c /etc/apache2/.htpasswd $usr_nm
+
+
+            ;;
+        "Restrict VH website")
+            read -p 'Enter Server Name to retrict: ' srvr_nm
+            restrict_fn $srvr_nm
+            echo $srvr_nm" website has been restricted successfully"
+	    ;;
+        "Quit")
+            break
+            ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done
+
+}
+
+function restrict_fn
+{
+        root_dir=/var/www/${srvr_nm}/html
+        echo "<VirtualHost *:80>
+        ServerAdmin admin@ayahussein.com
+        ServerName ${srvr_nm}
+        DocumentRoot $root_dir
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        <Directory /var/www/${srvr_nm}/html>
+                Options Indexes FollowSymLinks
+                AllowOverride All
+
+                AuthType Basic
+                AuthName 'Restricted Content'
+                AuthUserFile /etc/apache2/.htpasswd
+                Require valid-user
+
+        </Directory>
+        </VirtualHost>" >/etc/apache2/sites-available/${srvr_nm}.conf
+
+	sudo service apache2 restart
+}
 

@@ -29,7 +29,7 @@ do
 	"Stop Apache")
 		stop_apache_fn
 
-		echo "Apache Stop"
+		echo "Apache Stopped"
         	;;
 	"Adminstrate VirtualHosts")
                 #read -p "Enter invoice id: "  id
@@ -37,7 +37,8 @@ do
             	Adminstrate_VirtualHosts_fn
             ;;
         "Configure Authentication")
-            echo "Configure Authentication"
+           authenticate_vh_fn
+	   #echo "Configure Authentication"
             ;;
         "Quit")
             break
