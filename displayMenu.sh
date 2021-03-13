@@ -1,11 +1,10 @@
-### script to view Options menu
+### script to view Main Options menu
 
-#source controller.sh
 
 function displayMenu {
 echo 'Welcome '$(whoami)' to Apache web server administrator'
 PS3='Please enter your choice: '
-options=( "Show Apache status" "Install Apache" "Remove Apache" "Start Apache" "Stop Apache" "Adminstrate VirtualHosts" "Configure Authentication" "Quit")
+options=( "Show Apache status" "Install Apache" "Remove Apache" "Start Apache" "Stop Apache" "display available websites" "Adminstrate VirtualHosts" "Configure Authentication" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -16,27 +15,28 @@ do
                 install_apache_fn
 
 		;;
-         "Remove Apache")
+    "Remove Apache")
 		remove_apache_fn
 
-                echo "Remove Apache"
             ;;
 	"Start Apache")
 		start_apache_fn
 
-		echo "Apache Started"
 		;;
 	"Stop Apache")
 		stop_apache_fn
 
-		echo "Apache Stopped"
+		
         	;;
+    "display available websites")
+                sudo ls /etc/apache2/sites-available
+		;;        
 	"Adminstrate VirtualHosts")
                 #read -p "Enter invoice id: "  id
 
             	Adminstrate_VirtualHosts_fn
             ;;
-        "Configure Authentication")
+    "Configure Authentication")
            authenticate_vh_fn
 	   #echo "Configure Authentication"
             ;;
